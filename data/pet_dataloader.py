@@ -1,8 +1,10 @@
 
+from cam.base_cam import BaseCAM
 import glob
 import os
 import random
 
+import torch
 from torch.utils import data
 from torch.utils.data import dataloader
 from torchvision import transforms
@@ -179,3 +181,5 @@ if __name__ == "__main__":
     train_imgs, val_imgs, train_labels, val_labels = _data_split(
         img_paths, label_idxes, val_rate=0.2)
     print(len(train_imgs), len(val_imgs))
+
+
