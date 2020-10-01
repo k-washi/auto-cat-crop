@@ -9,6 +9,7 @@ import torch.nn as nn
 from torchsummary import summary
 import torch.optim as optim
 from tqdm import tqdm
+import datetime
 
 import optuna
 optuna.logging.disable_default_handler()
@@ -53,6 +54,10 @@ def _objective(trial):
     cnf.model.conv_num = num_layer
     cnf.model.mid_units = mid_units
     cnf.model.num_filters = num_filters
+
+    now = datetime.datetime.now()
+    nowf = now.strftime("%Y%m%d-%H%M%S")
+    cnf.model_weight_prefix = "pet_cls_" + str(nowf) + "_"
 
     acc = _set_train(cnf)
     return acc
@@ -173,6 +178,9 @@ def train_model(cnf, model, dataloaders_dict, criterion, optimizer, scheduler, w
             writer.log_step_metric(f"{phase}-loss", epoch_loss, step=epoch)
             writer.log_step_metric(f"{phase}-acc", epoch_acc, step=epoch)
         if _early_stop:
+            model_weight_path = model_w_prefix + \
+                '_' + str(epoch) + '_best.pth'
+            torch.save(model.to('cpu').state_dict(), model_weight_path)
             logger.info(
                 f"Early Stoping: {early_stopping.epoch()}, Loss: {early_stopping.loss()}, Acc: {early_stopping.acc()}")
             break
