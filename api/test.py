@@ -6,11 +6,18 @@ from fastapi.staticfiles import StaticFiles
 import cv2
 import io
 from typing import List
-
+from PIL import Image
 import numpy as np
+import sys
+
+import imagecrop
+
 templates = Jinja2Templates(directory="templates")
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+crop_width, crop_height = 200, 200
+crop_model = imagecrop.ImageCropper(crop_width, crop_height)
 
 
 class Item(BaseModel):
@@ -52,7 +59,7 @@ async def img_post(request: Request):
     return templates.TemplateResponse("img_post.html", {"request": request})
 
 
-def read_image(bin_data, size=(224, 224)):
+def read_image(bin_data):
     """画像を読み込む
 
     Arguments:
@@ -67,7 +74,26 @@ def read_image(bin_data, size=(224, 224)):
     file_bytes = np.asarray(bytearray(bin_data.read()), dtype=np.uint8)
     img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img = cv2.resize(img, size)
+    # img = cv2.resize(img, size)
+    img = Image.fromarray(img)
+    return img
+
+
+def read_image_PIL(bin_data, size=(224, 224)):
+    """画像を読み込む
+
+    Arguments:
+        bin_data {bytes} -- 画像のバイナリデータ
+
+    Keyword Arguments:
+        size {tuple} -- リサイズしたい画像サイズ (default: {(224, 224)})
+
+    Returns:
+        numpy.array -- 画像
+    """
+    file_bytes = np.asarray(bytearray(bin_data.read()), dtype=np.uint8)
+    img = Image.fromarray(file_bytes)
+    img = img.convert("RGB")
     return img
 
 
@@ -83,4 +109,7 @@ async def image_recognition(files: List[UploadFile] = File(...)):
     """
     bin_data = io.BytesIO(files[0].file.read())
     img = read_image(bin_data)
+    img.save("pre_crop.jpg")
+    cropped_img = crop_model.crop(img)
+    cropped_img.save("./tmp.jpg")
     return {"response": "OK"}
