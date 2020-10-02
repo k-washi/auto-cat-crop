@@ -97,7 +97,7 @@ $(function () {
                 var response = JSON.parse(response);
                 console.log(response);
                 var result = document.getElementById("result");
-                result.innerHTML = "この画像...「" + response["response"] + "」やんけ";
+                result.innerHTML = "この画像...「" + response["response"] + "」です";
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
                 // 通信が失敗した場合、エラーメッセージを出力する
