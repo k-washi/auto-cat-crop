@@ -39,3 +39,8 @@ async def create_item(item: Item):
 @app.get("/template")
 async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/img_post")
+async def img_post(request: Request):
+    return templates.TemplateResponse("img_post.html", {"request"})
