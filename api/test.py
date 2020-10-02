@@ -35,7 +35,7 @@ async def root():
 
 
 @app.get("/test/{name}")
-async def root(name):
+async def root(name: str):
     return {"message": "Hello " + name}
 
 
@@ -65,35 +65,13 @@ def read_image(bin_data):
     Arguments:
         bin_data {bytes} -- 画像のバイナリデータ
 
-    Keyword Arguments:
-        size {tuple} -- リサイズしたい画像サイズ (default: {(224, 224)})
-
     Returns:
         numpy.array -- 画像
     """
     file_bytes = np.asarray(bytearray(bin_data.read()), dtype=np.uint8)
     img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    # img = cv2.resize(img, size)
     img = Image.fromarray(img)
-    return img
-
-
-def read_image_PIL(bin_data, size=(224, 224)):
-    """画像を読み込む
-
-    Arguments:
-        bin_data {bytes} -- 画像のバイナリデータ
-
-    Keyword Arguments:
-        size {tuple} -- リサイズしたい画像サイズ (default: {(224, 224)})
-
-    Returns:
-        numpy.array -- 画像
-    """
-    file_bytes = np.asarray(bytearray(bin_data.read()), dtype=np.uint8)
-    img = Image.fromarray(file_bytes)
-    img = img.convert("RGB")
     return img
 
 
@@ -109,7 +87,6 @@ async def image_recognition(files: List[UploadFile] = File(...)):
     """
     bin_data = io.BytesIO(files[0].file.read())
     img = read_image(bin_data)
-    img.save("pre_crop.jpg")
     cropped_img = crop_model.crop(img)
-    cropped_img.save("./tmp.jpg")
+    cropped_img.save("./cropped.jpg")
     return {"response": "OK"}
