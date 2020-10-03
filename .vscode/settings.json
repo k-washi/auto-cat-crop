@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/Users/washizakikai/.anyenv/envs/pyenv/versions/auto-cat-crop/bin/python",
+    "python.pythonPath": "/Users/kawara/opt/anaconda3/bin/python",
     "python.jediEnabled": false,
     "python.linting.flake8Enabled": false,
     "editor.formatOnSave": true,

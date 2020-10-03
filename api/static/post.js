@@ -22,6 +22,23 @@ $(function () {
         var image = new Image();
         var reader = new FileReader();
         reader.onload = function (e) {
+            // base64画像データを取得し、POST用のBlobを作成する
+            var base64 = reader.result;
+            var barr, bin, i, len;
+            bin = atob(base64.split("base64,")[1]);
+            len = bin.length;
+            barr = new Uint8Array(len);
+            i = 0;
+            while (i < len) {
+                barr[i] = bin.charCodeAt(i);
+                i++;
+            }
+            blob = new Blob([barr], {
+                type: "image/jpeg"
+            });
+            // console.log(blob);
+
+            // 画像のプレビューを描画
             image.onload = function () {
                 var width, height;
 
@@ -50,22 +67,6 @@ $(function () {
                     width,
                     height
                 );
-
-                // canvasからbase64画像データを取得し、POST用のBlobを作成する
-                var base64 = canvas.get(0).toDataURL("image/jpeg");
-                var barr, bin, i, len;
-                bin = atob(base64.split("base64,")[1]);
-                len = bin.length;
-                barr = new Uint8Array(len);
-                i = 0;
-                while (i < len) {
-                    barr[i] = bin.charCodeAt(i);
-                    i++;
-                }
-                blob = new Blob([barr], {
-                    type: "image/jpeg"
-                });
-                console.log(blob);
             };
             image.src = e.target.result;
         };
@@ -78,19 +79,18 @@ $(function () {
             return;
         }
 
-        var name,
-            fd = new FormData();
+        var fd = new FormData();
         fd.append("files", blob);
 
         // API宛にPOSTする
         $.ajax({
-                url: "/api/image_recognition",
-                type: "POST",
-                dataType: "json",
-                data: fd,
-                processData: false,
-                contentType: false,
-            })
+            url: "/api/image_recognition",
+            type: "POST",
+            dataType: "json",
+            data: fd,
+            processData: false,
+            contentType: false,
+        })
             .done(function (data, textStatus, jqXHR) {
                 // 通信が成功した場合、結果を出力する
                 var response = JSON.stringify(data);
